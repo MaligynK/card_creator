@@ -66,8 +66,8 @@ export class AppComponent {
     card_rect: Kinetic.Rect = new Kinetic.Rect({
         stroke: '#00AAFF',
         strokeWidth: LIST_BORDER,
-        x: 1 + LIST_BORDER + this.padding_width,
-        y: 1 + LIST_BORDER + this.padding_height,
+        x: 0,
+        y: 0,
         opacity: 0,
         width: 0,
         height: 0
@@ -84,8 +84,9 @@ export class AppComponent {
     ];
     selected_type = this.lists_types[5];
 
-    padding_height = 0;
-    padding_width = 0;
+    // отступы между картами и краем листа
+    padding_top = 0;
+    padding_left = 0;
 
     cards_types: any[] = [
         {name: 'Свой', width: 0, height: 0},
@@ -98,9 +99,129 @@ export class AppComponent {
     ];
     selected_card = this.cards_types[1];
 
-    update_list = function(){
+    // коэффициент для перевода мм в пиксели
+    get_px_coeff = function():number{
+        if(this.selected_type.width > this.selected_type.height){
+            return this.list_rect.width() / this.selected_type.width;
+        }else{
+            return this.list_rect.height() / this.selected_type.height;
+        }
+    };
 
-        let mm_in_px:number = 0;
+    // добавляем карты на лист
+    add_cards = function(rows_count:number, cols_count:number, side_count:number, vertical:boolean){
+        let mm_in_px:number = this.get_px_coeff();
+
+        let current_card:Kinetic.Rect;
+        const CONST_POS_X:number = 1 + LIST_BORDER + this.padding_left*mm_in_px;
+        const CONST_POS_Y:number = 1 + LIST_BORDER + this.padding_top*mm_in_px;
+        let pos_x:number = CONST_POS_X;
+        let pos_y:number = CONST_POS_Y;
+        for(let j=0; j<rows_count; j++){
+            for(let i=0; i<cols_count; i++){
+                if(current_card){
+                    current_card = current_card.clone();
+                }else{
+                    current_card = this.card_rect;
+                }
+                current_card.x(pos_x);
+                current_card.y(pos_y);
+                this.cards_layer.add(current_card);
+                pos_x += current_card.width();
+            }
+            pos_x = CONST_POS_X;
+            pos_y += current_card.height();
+        }
+        if(side_count){
+            if(vertical){
+                pos_x = CONST_POS_X + current_card.width()*cols_count;
+                pos_y = CONST_POS_Y + current_card.width();
+                //pos_x -= current_card.width();
+            }else{
+                pos_y += current_card.width();
+            }
+
+            current_card = current_card.clone();
+            current_card.rotate(-90);
+            for(let i=0; i<side_count; i++){
+                current_card = current_card.clone();
+                current_card.x(pos_x);
+                current_card.y(pos_y);
+                this.cards_layer.add(current_card);
+                if(vertical){
+                    pos_y += current_card.width();
+                }else{
+                    pos_x += current_card.height();
+                }
+            }
+        }
+
+    };
+
+    // запоняем лист картами
+    fill_cards = function(){
+        let mm_in_px:number = this.get_px_coeff();
+
+        // размеры области, в которой должны поместиться карты
+        let list_width:number = (this.selected_width - 2*this.padding_left)*mm_in_px - 2*LIST_BORDER;
+        let list_height:number = (this.selected_height - 2*this.padding_top)*mm_in_px - 2*LIST_BORDER;
+        let card_width:number = this.card_width * mm_in_px;
+        let card_height:number = this.card_height * mm_in_px;
+
+
+        // определяем, как расположить карты, чтобы их оказалось как можно больше
+
+        // горизонтальное расположение
+        // количество рядов
+        let h_rows_count:number = Math.floor(list_height/card_height);
+        // количество колонок
+        let h_cols_count:number = Math.floor(list_width/card_width);
+        // количество боком
+        //TODO: что если ширина карты больше высоты?
+        let h_side_count:number = Math.floor(list_width/card_height);
+        let horizontal_count:number = h_cols_count * h_rows_count;
+        if(list_height%card_height >= card_width){
+            // можно разместить карты "боком"
+            horizontal_count += h_side_count;
+        }else{
+            h_side_count = 0;
+        }
+
+        // вертикальное расположение
+        // количество рядов
+        let v_rows_count:number = Math.floor(list_height/card_width);
+        // количество колонок
+        let v_cols_count:number = Math.floor(list_width/card_height);
+        // количество боком
+        let v_side_count:number = Math.floor(list_height/card_height);
+        let vertical_count:number = v_cols_count * v_rows_count;
+        if(list_width%card_height >= card_width){
+            // можно разместить карты "боком"
+            vertical_count += v_side_count;
+        }else{
+            v_side_count = 0;
+        }
+
+        this.card_rect.opacity(1);
+        this.cards_layer.removeChildren();
+        if(horizontal_count >= vertical_count){
+            // горизонтальное расположение лучше
+            this.card_rect.width(card_width);
+            this.card_rect.height(card_height);
+            this.add_cards(h_rows_count, h_cols_count, h_side_count, false);
+        }else{
+            // вертикальное расположение лучше
+            //TODO: this.card_rect.rotation(90)
+            this.card_rect.width(card_height);
+            this.card_rect.height(card_width);
+            this.add_cards(v_rows_count, v_cols_count, v_side_count, true);
+        }
+        this.cards_layer.draw();
+    };
+
+    // обновляем лист после его изменения
+    update_list = function(){
+        let mm_in_px:number = this.get_px_coeff();
         if(this.selected_type.width > this.selected_type.height){
             this.list_rect.width(LIST_WIDTH - 3*LIST_BORDER);
             mm_in_px = this.list_rect.width() / this.selected_type.width;
@@ -112,20 +233,13 @@ export class AppComponent {
             this.list_rect.width(this.selected_type.width * mm_in_px);
         }
 
-        this.card_rect.x(1 + LIST_BORDER + this.padding_width);
-        this.card_rect.y(1 + LIST_BORDER + this.padding_height);
-        this.card_rect.width(this.selected_card.width * mm_in_px);
-        this.card_rect.height(this.selected_card.height * mm_in_px);
-
-        this.card_rect.opacity(1);
         this.list_rect.opacity(1);
         // main_layer.removeChildren();
         // main_layer.add(list_rect);
         // main_layer.add(card_rect);
         this.main_layer.draw();
-        this.cards_layer.draw();
+        this.fill_cards();
         //card_list.add(main_layer);
-
     };
 
     // выбран другой тип

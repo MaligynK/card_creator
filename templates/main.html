@@ -31,11 +31,11 @@
                 <div class="row">
                     <div class="col-lg-6">
                         <p>Лево/Право</p>
-                        <input type="number" [(ngModel)]="padding_width" (blur)="custom_card()">
+                        <input type="number" [(ngModel)]="padding_left" (blur)="update_list()">
                     </div>
                     <div class="col-lg-6">
                         <p>Верх/Низ</p>
-                        <input type="number" [(ngModel)]="padding_height" (blur)="custom_card()">
+                        <input type="number" [(ngModel)]="padding_top" (blur)="update_list()">
                     </div>
                 </div>
             </div>

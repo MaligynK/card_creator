@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+
+    <!--<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>-->
+    <script src="node_modules/core-js/client/shim.min.js"></script>
+    <script src="node_modules/zone.js/dist/zone.js"></script>
+    <script src="node_modules/systemjs/dist/system.src.js"></script>
+
+    <script src="lib/KineticJS/kinetic-v5.1.0.js"></script>
+
+    <script src="systemjs.config.js"></script>
+    <script>
+        System.import('app').catch(function(err){ console.error(err); });
+    </script>
+    <!--<script src="test.js"></script>-->
+
+    <style>
+
+        p, h1, h2, h3, h4, h5, ul, li{
+            margin: 0;
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <card-app>Загрузка...</card-app>
+
+</body>
+</html>

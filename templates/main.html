@@ -1,0 +1,50 @@
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="menu-elem">
+                <p>Выберите формат страницы:</p>
+
+                <select name="" [(ngModel)]="selected_type"
+                        (ngModelChange)="select_type()">
+                    <option *ngFor="let lists_type of lists_types" [ngValue]="lists_type">
+                        {{lists_type.name}}
+                    </option>
+                </select>
+
+                <input type="number" [(ngModel)]="selected_width" (blur)="custom_list()">
+                <input type="number" [(ngModel)]="selected_height" (blur)="custom_list()">
+            </div>
+            <div class="menu-elem">
+                <p>Выберите размер карты:</p>
+                <select name="" [(ngModel)]="selected_card"
+                        (ngModelChange)="select_type()">
+                    <option *ngFor="let cards_type of cards_types" [ngValue]="cards_type">
+                        {{cards_type.name}}
+                    </option>
+                </select>
+
+                <input type="number" [(ngModel)]="card_width" (blur)="custom_card()">
+                <input type="number" [(ngModel)]="card_height" (blur)="custom_card()">
+            </div>
+            <div class="menu-elem">
+                <p>Границы от края страницы:</p>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <p>Лево/Право</p>
+                        <input type="number" [(ngModel)]="padding_width" (blur)="custom_card()">
+                    </div>
+                    <div class="col-lg-6">
+                        <p>Верх/Низ</p>
+                        <input type="number" [(ngModel)]="padding_height" (blur)="custom_card()">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-lg-6">
+            <div id="card_list"></div>
+        </div>
+    </div>
+
+
+</div>

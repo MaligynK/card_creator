@@ -9,6 +9,85 @@ var core_1 = require("@angular/core");
 var LIST_WIDTH = 500;
 var LIST_HEIGHT = 500;
 var LIST_BORDER = 2;
+var Card = (function () {
+    function Card() {
+        this.kinetic = new Kinetic.Group();
+        this.elements = [
+            {
+                type: 1,
+                w_size: 100,
+                h_size: 100,
+                x: 0,
+                y: 0,
+                kinetic: new Kinetic.Rect({
+                    stroke: '#00AAFF',
+                    strokeWidth: LIST_BORDER,
+                    x: 0,
+                    y: 0,
+                    opacity: 1,
+                    width: 0,
+                    height: 0
+                }),
+                desc: 'Рамка'
+            },
+            {
+                type: 2,
+                size: 40,
+                fill: '#FFFFFF',
+                kinetic: new Kinetic.Text({
+                    fontSize: 30,
+                    text: 'E',
+                    fill: '#127351',
+                    x: 0,
+                    y: 0
+                }),
+                desc: 'Текст'
+            }
+        ];
+        this.reload();
+    }
+    Card.prototype.reload = function () {
+        this.kinetic.removeChildren();
+        for (var i = 0; i < this.elements.length; i++) {
+            this.kinetic.add(this.elements[i].kinetic);
+        }
+    };
+    ;
+    Card.prototype.set_size = function (width, height) {
+        this.kinetic.width(width);
+        this.kinetic.height(height);
+        for (var i = 0; i < this.elements.length; i++) {
+            if (this.elements[i].type == 1) {
+                this.elements[i].kinetic.width(width * this.elements[i].w_size / 100);
+                this.elements[i].kinetic.height(height * this.elements[i].h_size / 100);
+                this.elements[i].kinetic.x(this.elements[i].x * width / 100);
+                this.elements[i].kinetic.y(this.elements[i].y * height / 100);
+            }
+            else {
+                this.elements[i].kinetic.x(0);
+                this.elements[i].kinetic.y(0);
+            }
+        }
+        this.reload();
+    };
+    ;
+    Card.prototype.clone = function () {
+        var clone_obj = Object.create(this);
+        clone_obj.elements = [];
+        for (var i = 0; i < this.elements.length; i++) {
+            var clone_elem = Object.create(this.elements[i]);
+            clone_elem.kinetic = this.elements[i].kinetic.clone();
+            clone_obj.elements.push(clone_elem);
+        }
+        clone_obj.kinetic = this.kinetic.clone();
+        clone_obj.reload();
+        return clone_obj;
+    };
+    ;
+    ;
+    return Card;
+}());
+;
 var AppComponent = (function () {
     function AppComponent() {
         var _this = this;
@@ -34,15 +113,7 @@ var AppComponent = (function () {
             width: 0,
             height: 0
         });
-        this.card_rect = new Kinetic.Rect({
-            stroke: '#00AAFF',
-            strokeWidth: LIST_BORDER,
-            x: 0,
-            y: 0,
-            opacity: 0,
-            width: 0,
-            height: 0
-        });
+        this.card_elem = new Card();
         this.lists_types = [
             { name: 'Свой', width: 0, height: 0 },
             { name: 'A0', width: 841, height: 1189 },
@@ -86,36 +157,36 @@ var AppComponent = (function () {
                         current_card = current_card.clone();
                     }
                     else {
-                        current_card = this.card_rect;
+                        current_card = this.card_elem;
                     }
-                    current_card.x(pos_x);
-                    current_card.y(pos_y);
-                    this.cards_layer.add(current_card);
-                    pos_x += current_card.width();
+                    current_card.kinetic.x(pos_x);
+                    current_card.kinetic.y(pos_y);
+                    this.cards_layer.add(current_card.kinetic);
+                    pos_x += current_card.kinetic.width();
                 }
                 pos_x = CONST_POS_X;
-                pos_y += current_card.height();
+                pos_y += current_card.kinetic.height();
             }
             if (side_count) {
                 if (vertical) {
-                    pos_x = CONST_POS_X + current_card.width() * cols_count;
-                    pos_y = CONST_POS_Y + current_card.width();
+                    pos_x = CONST_POS_X + current_card.kinetic.width() * cols_count;
+                    pos_y = CONST_POS_Y + current_card.kinetic.width();
                 }
                 else {
-                    pos_y += current_card.width();
+                    pos_y += current_card.kinetic.width();
                 }
                 current_card = current_card.clone();
-                current_card.rotate(-90);
+                current_card.kinetic.rotate(-90);
                 for (var i = 0; i < side_count; i++) {
                     current_card = current_card.clone();
-                    current_card.x(pos_x);
-                    current_card.y(pos_y);
-                    this.cards_layer.add(current_card);
+                    current_card.kinetic.x(pos_x);
+                    current_card.kinetic.y(pos_y);
+                    this.cards_layer.add(current_card.kinetic);
                     if (vertical) {
-                        pos_y += current_card.width();
+                        pos_y += current_card.kinetic.width();
                     }
                     else {
-                        pos_x += current_card.height();
+                        pos_x += current_card.kinetic.height();
                     }
                 }
             }
@@ -146,16 +217,13 @@ var AppComponent = (function () {
             else {
                 v_side_count = 0;
             }
-            this.card_rect.opacity(1);
             this.cards_layer.removeChildren();
             if (horizontal_count >= vertical_count) {
-                this.card_rect.width(card_width);
-                this.card_rect.height(card_height);
+                this.card_elem.set_size(card_width, card_height);
                 this.add_cards(h_rows_count, h_cols_count, h_side_count, false);
             }
             else {
-                this.card_rect.width(card_height);
-                this.card_rect.height(card_width);
+                this.card_elem.set_size(card_height, card_width);
                 this.add_cards(v_rows_count, v_cols_count, v_side_count, true);
             }
             this.cards_layer.draw();
@@ -211,7 +279,7 @@ var AppComponent = (function () {
             _this.card_list.add(_this.main_layer);
             _this.card_list.add(_this.cards_layer);
             _this.main_layer.add(_this.list_rect);
-            _this.cards_layer.add(_this.card_rect);
+            _this.cards_layer.add(_this.card_elem.kinetic);
             _this.select_type();
         }, 100);
     }

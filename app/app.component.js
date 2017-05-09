@@ -145,10 +145,16 @@ var AppComponent = (function () {
             }
         };
         this.add_cards = function (rows_count, cols_count, side_count, vertical) {
+            if (!rows_count || !cols_count) {
+                return;
+            }
             var mm_in_px = this.get_px_coeff();
             var current_card;
             var CONST_POS_X = 1 + LIST_BORDER + this.padding_left * mm_in_px;
             var CONST_POS_Y = 1 + LIST_BORDER + this.padding_top * mm_in_px;
+            if (vertical) {
+                CONST_POS_X += this.card_elem.kinetic.height();
+            }
             var pos_x = CONST_POS_X;
             var pos_y = CONST_POS_Y;
             for (var j = 0; j < rows_count; j++) {
@@ -162,15 +168,24 @@ var AppComponent = (function () {
                     current_card.kinetic.x(pos_x);
                     current_card.kinetic.y(pos_y);
                     this.cards_layer.add(current_card.kinetic);
-                    pos_x += current_card.kinetic.width();
+                    if (vertical) {
+                        pos_x += current_card.kinetic.height();
+                    }
+                    else {
+                        pos_x += current_card.kinetic.width();
+                    }
                 }
                 pos_x = CONST_POS_X;
-                pos_y += current_card.kinetic.height();
+                if (vertical) {
+                    pos_y += current_card.kinetic.width();
+                }
+                else {
+                    pos_y += current_card.kinetic.height();
+                }
             }
             if (side_count) {
                 if (vertical) {
-                    pos_x = CONST_POS_X + current_card.kinetic.width() * cols_count;
-                    pos_y = CONST_POS_Y + current_card.kinetic.width();
+                    pos_y = CONST_POS_Y;
                 }
                 else {
                     pos_y += current_card.kinetic.width();
@@ -183,7 +198,7 @@ var AppComponent = (function () {
                     current_card.kinetic.y(pos_y);
                     this.cards_layer.add(current_card.kinetic);
                     if (vertical) {
-                        pos_y += current_card.kinetic.width();
+                        pos_y += current_card.kinetic.height();
                     }
                     else {
                         pos_x += current_card.kinetic.height();
@@ -218,12 +233,13 @@ var AppComponent = (function () {
                 v_side_count = 0;
             }
             this.cards_layer.removeChildren();
+            this.card_elem.set_size(card_width, card_height);
             if (horizontal_count >= vertical_count) {
-                this.card_elem.set_size(card_width, card_height);
+                this.card_elem.kinetic.rotation(0);
                 this.add_cards(h_rows_count, h_cols_count, h_side_count, false);
             }
             else {
-                this.card_elem.set_size(card_height, card_width);
+                this.card_elem.kinetic.rotation(90);
                 this.add_cards(v_rows_count, v_cols_count, v_side_count, true);
             }
             this.cards_layer.draw();
@@ -247,6 +263,12 @@ var AppComponent = (function () {
         this.select_type = function () {
             this.selected_width = this.selected_type.width;
             this.selected_height = this.selected_type.height;
+            if (!this.selected_card.width) {
+                this.selected_card.width = this.card_width;
+            }
+            if (!this.selected_card.height) {
+                this.selected_card.height = this.card_height;
+            }
             this.card_width = this.selected_card.width;
             this.card_height = this.selected_card.height;
             this.update_list();

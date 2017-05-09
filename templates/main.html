@@ -11,8 +11,8 @@
                     </option>
                 </select>
 
-                <input type="number" [(ngModel)]="selected_width" (blur)="custom_list()">
-                <input type="number" [(ngModel)]="selected_height" (blur)="custom_list()">
+                <input type="number" [(ngModel)]="selected_width" min="1" (blur)="custom_list()">
+                <input type="number" [(ngModel)]="selected_height" min="1" (blur)="custom_list()">
             </div>
             <div class="menu-elem">
                 <p>Выберите размер карты:</p>
@@ -23,19 +23,19 @@
                     </option>
                 </select>
 
-                <input type="number" [(ngModel)]="card_width" (blur)="custom_card()">
-                <input type="number" [(ngModel)]="card_height" (blur)="custom_card()">
+                <input type="number" [(ngModel)]="card_width" min="1" (blur)="custom_card()">
+                <input type="number" [(ngModel)]="card_height" min="1" (blur)="custom_card()">
             </div>
             <div class="menu-elem">
                 <p>Границы от края страницы:</p>
                 <div class="row">
                     <div class="col-lg-6">
                         <p>Лево/Право</p>
-                        <input type="number" [(ngModel)]="padding_left" (blur)="update_list()">
+                        <input type="number" [(ngModel)]="padding_left" min="0" (blur)="update_list()">
                     </div>
                     <div class="col-lg-6">
                         <p>Верх/Низ</p>
-                        <input type="number" [(ngModel)]="padding_top" (blur)="update_list()">
+                        <input type="number" [(ngModel)]="padding_top" min="0" (blur)="update_list()">
                     </div>
                 </div>
             </div>

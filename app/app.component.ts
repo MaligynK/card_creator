@@ -192,11 +192,18 @@ export class AppComponent {
 
     // добавляем карты на лист
     add_cards = function(rows_count:number, cols_count:number, side_count:number, vertical:boolean){
+        if(!rows_count || !cols_count){
+            // не помещается на лист
+            return;
+        }
         let mm_in_px:number = this.get_px_coeff();
 
         let current_card;
         const CONST_POS_X:number = 1 + LIST_BORDER + this.padding_left*mm_in_px;
         const CONST_POS_Y:number = 1 + LIST_BORDER + this.padding_top*mm_in_px;
+        if(vertical){
+            CONST_POS_X += this.card_elem.kinetic.height();
+        }
         let pos_x:number = CONST_POS_X;
         let pos_y:number = CONST_POS_Y;
         for(let j=0; j<rows_count; j++){
@@ -210,16 +217,22 @@ export class AppComponent {
                 current_card.kinetic.x(pos_x);
                 current_card.kinetic.y(pos_y);
                 this.cards_layer.add(current_card.kinetic);
-                pos_x += current_card.kinetic.width();
+                if(vertical){
+                    pos_x += current_card.kinetic.height();
+                }else{
+                    pos_x += current_card.kinetic.width();
+                }
             }
             pos_x = CONST_POS_X;
-            pos_y += current_card.kinetic.height();
+            if(vertical){
+                pos_y += current_card.kinetic.width();
+            }else {
+                pos_y += current_card.kinetic.height();
+            }
         }
         if(side_count){
             if(vertical){
-                pos_x = CONST_POS_X + current_card.kinetic.width()*cols_count;
-                pos_y = CONST_POS_Y + current_card.kinetic.width();
-                //pos_x -= current_card.width();
+                pos_y = CONST_POS_Y;
             }else{
                 pos_y += current_card.kinetic.width();
             }
@@ -232,7 +245,7 @@ export class AppComponent {
                 current_card.kinetic.y(pos_y);
                 this.cards_layer.add(current_card.kinetic);
                 if(vertical){
-                    pos_y += current_card.kinetic.width();
+                    pos_y += current_card.kinetic.height();
                 }else{
                     pos_x += current_card.kinetic.height();
                 }
@@ -286,18 +299,15 @@ export class AppComponent {
         }
 
         this.cards_layer.removeChildren();
+        this.card_elem.set_size(card_width, card_height);
+
         if(horizontal_count >= vertical_count){
             // горизонтальное расположение лучше
-            // this.card_rect.width(card_width);
-            // this.card_rect.height(card_height);
-            this.card_elem.set_size(card_width, card_height);
+            this.card_elem.kinetic.rotation(0);
             this.add_cards(h_rows_count, h_cols_count, h_side_count, false);
         }else{
             // вертикальное расположение лучше
-            //TODO: this.card_rect.rotation(90)
-            // this.card_rect.width(card_height);
-            // this.card_rect.height(card_width);
-            this.card_elem.set_size(card_height, card_width);
+            this.card_elem.kinetic.rotation(90);
             this.add_cards(v_rows_count, v_cols_count, v_side_count, true);
         }
         this.cards_layer.draw();
@@ -329,6 +339,13 @@ export class AppComponent {
     select_type = function(){
         this.selected_width = this.selected_type.width;
         this.selected_height = this.selected_type.height;
+
+        if(!this.selected_card.width){
+            this.selected_card.width = this.card_width;
+        }
+        if(!this.selected_card.height){
+            this.selected_card.height = this.card_height;
+        }
         this.card_width = this.selected_card.width;
         this.card_height = this.selected_card.height;
         this.update_list();

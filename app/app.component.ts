@@ -29,6 +29,7 @@ class Card {
         this.kinetic.width(width);
         this.kinetic.height(height);
         for(let i=0; i<this.elements.length; i++){
+            if(!this.elements[i].kinetic){continue;}
             if(this.elements[i].type == 1){
                 // рамка карты
                 this.elements[i].kinetic.width(width*this.elements[i].w_size/100);
@@ -57,7 +58,7 @@ class Card {
         clone_obj.reload();
         return clone_obj;
     };
-    elements: any[];
+    private elements: any[];
     constructor(){
         this.kinetic = new Kinetic.Group();
         this.elements = [
@@ -90,9 +91,26 @@ class Card {
                     y: 0
                 }),
                 desc: 'Текст'
+            },
+            {
+                type: 3,
+                url: 'static/images/character_front_1.jpg',
             }
         ];
-        this.reload();
+
+        for(let i=0; i<this.elements.length; i++){
+            if(this.elements[i].type == 3){
+                var image_obj = new Image();
+                image_obj.src = this.elements[i].url;
+                this.elements[i].kinetic = new Kinetic.Image({
+                    x: 0,
+                    y: 0,
+                    image: image_obj,
+                    width: 30,
+                    height: 50
+                });
+            }
+        }
 
     };
 

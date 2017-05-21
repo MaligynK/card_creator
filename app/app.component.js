@@ -6,107 +6,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var core_1 = require("@angular/core");
-var LIST_WIDTH = 500;
-var LIST_HEIGHT = 500;
-var LIST_BORDER = 2;
-var Card = (function () {
-    function Card() {
-        this.kinetic = new Kinetic.Group();
-        this.elements = [
-            {
-                type: 1,
-                w_size: 100,
-                h_size: 100,
-                x: 0,
-                y: 0,
-                kinetic: new Kinetic.Rect({
-                    stroke: '#00AAFF',
-                    strokeWidth: LIST_BORDER,
-                    x: 0,
-                    y: 0,
-                    opacity: 1,
-                    width: 0,
-                    height: 0
-                }),
-                desc: 'Рамка'
-            },
-            {
-                type: 2,
-                size: 40,
-                fill: '#FFFFFF',
-                kinetic: new Kinetic.Text({
-                    fontSize: 30,
-                    text: 'E',
-                    fill: '#127351',
-                    x: 0,
-                    y: 0
-                }),
-                desc: 'Текст'
-            },
-            {
-                type: 3,
-                url: 'static/images/character_front_1.jpg',
-            }
-        ];
-        for (var i = 0; i < this.elements.length; i++) {
-            if (this.elements[i].type == 3) {
-                var image_obj = new Image();
-                image_obj.src = this.elements[i].url;
-                this.elements[i].kinetic = new Kinetic.Image({
-                    x: 0,
-                    y: 0,
-                    image: image_obj,
-                    width: 30,
-                    height: 50
-                });
-            }
-        }
-    }
-    Card.prototype.reload = function () {
-        this.kinetic.removeChildren();
-        for (var i = 0; i < this.elements.length; i++) {
-            this.kinetic.add(this.elements[i].kinetic);
-        }
-    };
-    ;
-    Card.prototype.set_size = function (width, height) {
-        this.kinetic.width(width);
-        this.kinetic.height(height);
-        for (var i = 0; i < this.elements.length; i++) {
-            if (!this.elements[i].kinetic) {
-                continue;
-            }
-            if (this.elements[i].type == 1) {
-                this.elements[i].kinetic.width(width * this.elements[i].w_size / 100);
-                this.elements[i].kinetic.height(height * this.elements[i].h_size / 100);
-                this.elements[i].kinetic.x(this.elements[i].x * width / 100);
-                this.elements[i].kinetic.y(this.elements[i].y * height / 100);
-            }
-            else {
-                this.elements[i].kinetic.x(0);
-                this.elements[i].kinetic.y(0);
-            }
-        }
-        this.reload();
-    };
-    ;
-    Card.prototype.clone = function () {
-        var clone_obj = Object.create(this);
-        clone_obj.elements = [];
-        for (var i = 0; i < this.elements.length; i++) {
-            var clone_elem = Object.create(this.elements[i]);
-            clone_elem.kinetic = this.elements[i].kinetic.clone();
-            clone_obj.elements.push(clone_elem);
-        }
-        clone_obj.kinetic = this.kinetic.clone();
-        clone_obj.reload();
-        return clone_obj;
-    };
-    ;
-    ;
-    return Card;
-}());
-;
+var card_elements_1 = require("./modules/card_elements");
 var AppComponent = (function () {
     function AppComponent() {
         var _this = this;
@@ -115,24 +15,24 @@ var AppComponent = (function () {
         this.cards_layer = new Kinetic.Layer();
         this.border_rect = new Kinetic.Rect({
             stroke: '#000',
-            strokeWidth: LIST_BORDER,
+            strokeWidth: card_elements_1.CardConst.standard_border,
             x: 1,
             y: 1,
             opacity: 0.4,
-            width: LIST_WIDTH - LIST_BORDER,
-            height: LIST_HEIGHT - LIST_BORDER
+            width: card_elements_1.CardConst.standard_width - card_elements_1.CardConst.standard_border,
+            height: card_elements_1.CardConst.standard_height - card_elements_1.CardConst.standard_border
         });
         this.list_rect = new Kinetic.Rect({
             stroke: '#FFAA00',
             fill: '#f5eee9',
-            strokeWidth: LIST_BORDER,
-            x: 1 + LIST_BORDER,
-            y: 1 + LIST_BORDER,
+            strokeWidth: card_elements_1.CardConst.standard_border,
+            x: 1 + card_elements_1.CardConst.standard_border,
+            y: 1 + card_elements_1.CardConst.standard_border,
             opacity: 1,
             width: 0,
             height: 0
         });
-        this.card_elem = new Card();
+        this.card_elem = new card_elements_1.Card();
         this.lists_types = [
             { name: 'Свой', width: 0, height: 0 },
             { name: 'A0', width: 841, height: 1189 },
@@ -169,13 +69,13 @@ var AppComponent = (function () {
             }
             var mm_in_px = this.get_px_coeff();
             var current_card;
-            var CONST_POS_X = 1 + LIST_BORDER + this.padding_left * mm_in_px;
-            var CONST_POS_Y = 1 + LIST_BORDER + this.padding_top * mm_in_px;
+            var const_pos_x = 1 + card_elements_1.CardConst.standard_border + this.padding_left * mm_in_px;
+            var const_pos_y = 1 + card_elements_1.CardConst.standard_border + this.padding_top * mm_in_px;
             if (vertical) {
-                CONST_POS_X += this.card_elem.kinetic.height();
+                const_pos_x += this.card_elem.kinetic.height();
             }
-            var pos_x = CONST_POS_X;
-            var pos_y = CONST_POS_Y;
+            var pos_x = const_pos_x;
+            var pos_y = const_pos_y;
             for (var j = 0; j < rows_count; j++) {
                 for (var i = 0; i < cols_count; i++) {
                     if (current_card) {
@@ -194,7 +94,7 @@ var AppComponent = (function () {
                         pos_x += current_card.kinetic.width();
                     }
                 }
-                pos_x = CONST_POS_X;
+                pos_x = const_pos_x;
                 if (vertical) {
                     pos_y += current_card.kinetic.width();
                 }
@@ -204,7 +104,7 @@ var AppComponent = (function () {
             }
             if (side_count) {
                 if (vertical) {
-                    pos_y = CONST_POS_Y;
+                    pos_y = const_pos_y;
                 }
                 else {
                     pos_y += current_card.kinetic.width();
@@ -227,8 +127,8 @@ var AppComponent = (function () {
         };
         this.fill_cards = function () {
             var mm_in_px = this.get_px_coeff();
-            var list_width = (this.selected_width - 2 * this.padding_left) * mm_in_px - 2 * LIST_BORDER;
-            var list_height = (this.selected_height - 2 * this.padding_top) * mm_in_px - 2 * LIST_BORDER;
+            var list_width = (this.selected_width - 2 * this.padding_left) * mm_in_px - 2 * card_elements_1.CardConst.standard_border;
+            var list_height = (this.selected_height - 2 * this.padding_top) * mm_in_px - 2 * card_elements_1.CardConst.standard_border;
             var card_width = this.card_width * mm_in_px;
             var card_height = this.card_height * mm_in_px;
             var h_rows_count = Math.floor(list_height / card_height);
@@ -266,12 +166,12 @@ var AppComponent = (function () {
         this.update_list = function () {
             var mm_in_px = this.get_px_coeff();
             if (this.selected_type.width > this.selected_type.height) {
-                this.list_rect.width(LIST_WIDTH - 3 * LIST_BORDER);
+                this.list_rect.width(card_elements_1.CardConst.standard_width - 3 * card_elements_1.CardConst.standard_border);
                 mm_in_px = this.list_rect.width() / this.selected_type.width;
                 this.list_rect.height(this.selected_type.height * mm_in_px);
             }
             else {
-                this.list_rect.height(LIST_HEIGHT - 3 * LIST_BORDER);
+                this.list_rect.height(card_elements_1.CardConst.standard_height - 3 * card_elements_1.CardConst.standard_border);
                 mm_in_px = this.list_rect.height() / this.selected_type.height;
                 this.list_rect.width(this.selected_type.width * mm_in_px);
             }
@@ -312,8 +212,8 @@ var AppComponent = (function () {
         this.timeoutId = setTimeout(function () {
             _this.card_list = new Kinetic.Stage({
                 container: 'card_list',
-                width: LIST_WIDTH,
-                height: LIST_HEIGHT
+                width: card_elements_1.CardConst.standard_width,
+                height: card_elements_1.CardConst.standard_height
             });
             _this.background_layer.add(_this.border_rect);
             _this.card_list.add(_this.background_layer);

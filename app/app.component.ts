@@ -1,122 +1,7 @@
-//!!! app.component.ts
-import {Component, Class} from '@angular/core';
-// https://github.com/angular/angular/tree/master/modules/playground/src/async
-
-const LIST_WIDTH = 500;
-const LIST_HEIGHT = 500;
-const LIST_BORDER = 2;
-
-class Card {
-    kinetic: Kinetic.Group;
-    reload():void {
-        this.kinetic.removeChildren();
-        for(let i=0; i<this.elements.length; i++){
-            this.kinetic.add(this.elements[i].kinetic);
-        }
-
-        // this.kinetic.add(new Kinetic.Rect({
-        //     stroke: '#00AAFF',
-        //     strokeWidth: LIST_BORDER,
-        //     x: 0,
-        //     y: 0,
-        //     opacity: 1,
-        //     width: 30,
-        //     height: 30
-        // });
-
-    };
-    set_size(width:number, height:number):void {
-        this.kinetic.width(width);
-        this.kinetic.height(height);
-        for(let i=0; i<this.elements.length; i++){
-            if(!this.elements[i].kinetic){continue;}
-            if(this.elements[i].type == 1){
-                // рамка карты
-                this.elements[i].kinetic.width(width*this.elements[i].w_size/100);
-                this.elements[i].kinetic.height(height*this.elements[i].h_size/100);
-                this.elements[i].kinetic.x(this.elements[i].x*width/100);
-                this.elements[i].kinetic.y(this.elements[i].y*height/100);
-            }else{
-                // this.elements[i].kinetic.width(width*30/100);
-                // this.elements[i].kinetic.height(height*30/100);
-                this.elements[i].kinetic.x(0);
-                this.elements[i].kinetic.y(0);
-
-            }
-        }
-        this.reload();
-    };
-    clone():any {
-        let clone_obj:any = Object.create(this);
-        clone_obj.elements = [];
-        for(let i=0; i<this.elements.length; i++){
-            let clone_elem:any = Object.create(this.elements[i]);
-            clone_elem.kinetic = this.elements[i].kinetic.clone();
-            clone_obj.elements.push(clone_elem);
-        }
-        clone_obj.kinetic = this.kinetic.clone();
-        clone_obj.reload();
-        return clone_obj;
-    };
-    private elements: any[];
-    constructor(){
-        this.kinetic = new Kinetic.Group();
-        this.elements = [
-            {
-                type: 1, // рамка
-                w_size: 100,
-                h_size: 100,
-                x: 0,
-                y: 0,
-                kinetic: new Kinetic.Rect({
-                    stroke: '#00AAFF',
-                    strokeWidth: LIST_BORDER,
-                    x: 0,
-                    y: 0,
-                    opacity: 1,
-                    width: 0,
-                    height: 0
-                }),
-                desc: 'Рамка'
-            },
-            {
-                type: 2,
-                size: 40,
-                fill: '#FFFFFF',
-                kinetic: new Kinetic.Text({
-                    fontSize: 30,
-                    text: 'E',
-                    fill: '#127351',
-                    x: 0,
-                    y: 0
-                }),
-                desc: 'Текст'
-            },
-            {
-                type: 3,
-                url: 'static/images/character_front_1.jpg',
-            }
-        ];
-
-        for(let i=0; i<this.elements.length; i++){
-            if(this.elements[i].type == 3){
-                var image_obj = new Image();
-                image_obj.src = this.elements[i].url;
-                this.elements[i].kinetic = new Kinetic.Image({
-                    x: 0,
-                    y: 0,
-                    image: image_obj,
-                    width: 30,
-                    height: 50
-                });
-            }
-        }
-
-    };
+import { Component, Class } from '@angular/core';
+import { CardConst, Card } from "./modules/card_elements";
 
 
-
-};
 
 @Component({
     selector: 'card-app',
@@ -130,6 +15,7 @@ class Card {
     // <input [(ngModel)]="name" placeholder="name">
     // <h1>Добро пожаловать {{name}}!</h1>`
 })
+
 export class AppComponent {
 
     card_list: Kinetic.Stage;
@@ -142,36 +28,26 @@ export class AppComponent {
     // границы холста
     border_rect: Kinetic.Rect = new Kinetic.Rect({
         stroke: '#000',
-        strokeWidth: LIST_BORDER,
+        strokeWidth: CardConst.standard_border,
         x: 1,
         y: 1,
         opacity: 0.4,
-        width: LIST_WIDTH - LIST_BORDER,
-        height: LIST_HEIGHT - LIST_BORDER
+        width: CardConst.standard_width - CardConst.standard_border,
+        height: CardConst.standard_height - CardConst.standard_border
     });
     // лист
     list_rect: Kinetic.Rect = new Kinetic.Rect({
         stroke: '#FFAA00',
         fill: '#f5eee9',
-        strokeWidth: LIST_BORDER,
-        x: 1 + LIST_BORDER,
-        y: 1 + LIST_BORDER,
+        strokeWidth: CardConst.standard_border,
+        x: 1 + CardConst.standard_border,
+        y: 1 + CardConst.standard_border,
         opacity: 1,
         width: 0,
         height: 0
     });
     // карта
     card_elem:Card = new Card();
-    // card_rect: Kinetic.Rect = new Kinetic.Rect({
-    //     stroke: '#00AAFF',
-    //     strokeWidth: LIST_BORDER,
-    //     x: 0,
-    //     y: 0,
-    //     opacity: 0,
-    //     width: 0,
-    //     height: 0
-    // });
-
 
     lists_types: any[] = [
         {name: 'Свой', width: 0, height: 0},
@@ -217,13 +93,13 @@ export class AppComponent {
         let mm_in_px:number = this.get_px_coeff();
 
         let current_card;
-        const CONST_POS_X:number = 1 + LIST_BORDER + this.padding_left*mm_in_px;
-        const CONST_POS_Y:number = 1 + LIST_BORDER + this.padding_top*mm_in_px;
+        let const_pos_x:number = 1 + CardConst.standard_border + this.padding_left*mm_in_px;
+        let const_pos_y:number = 1 + CardConst.standard_border + this.padding_top*mm_in_px;
         if(vertical){
-            CONST_POS_X += this.card_elem.kinetic.height();
+            const_pos_x += this.card_elem.kinetic.height();
         }
-        let pos_x:number = CONST_POS_X;
-        let pos_y:number = CONST_POS_Y;
+        let pos_x:number = const_pos_x;
+        let pos_y:number = const_pos_y;
         for(let j=0; j<rows_count; j++){
             for(let i=0; i<cols_count; i++){
                 if(current_card){
@@ -241,7 +117,7 @@ export class AppComponent {
                     pos_x += current_card.kinetic.width();
                 }
             }
-            pos_x = CONST_POS_X;
+            pos_x = const_pos_x;
             if(vertical){
                 pos_y += current_card.kinetic.width();
             }else {
@@ -250,7 +126,7 @@ export class AppComponent {
         }
         if(side_count){
             if(vertical){
-                pos_y = CONST_POS_Y;
+                pos_y = const_pos_y;
             }else{
                 pos_y += current_card.kinetic.width();
             }
@@ -277,8 +153,8 @@ export class AppComponent {
         let mm_in_px:number = this.get_px_coeff();
 
         // размеры области, в которой должны поместиться карты
-        let list_width:number = (this.selected_width - 2*this.padding_left)*mm_in_px - 2*LIST_BORDER;
-        let list_height:number = (this.selected_height - 2*this.padding_top)*mm_in_px - 2*LIST_BORDER;
+        let list_width:number = (this.selected_width - 2*this.padding_left)*mm_in_px - 2*CardConst.standard_border;
+        let list_height:number = (this.selected_height - 2*this.padding_top)*mm_in_px - 2*CardConst.standard_border;
         let card_width:number = this.card_width * mm_in_px;
         let card_height:number = this.card_height * mm_in_px;
 
@@ -335,12 +211,12 @@ export class AppComponent {
     update_list = function(){
         let mm_in_px:number = this.get_px_coeff();
         if(this.selected_type.width > this.selected_type.height){
-            this.list_rect.width(LIST_WIDTH - 3*LIST_BORDER);
+            this.list_rect.width(CardConst.standard_width - 3*CardConst.standard_border);
             mm_in_px = this.list_rect.width() / this.selected_type.width;
             this.list_rect.height(this.selected_type.height * mm_in_px);
 
         }else{
-            this.list_rect.height(LIST_HEIGHT - 3*LIST_BORDER);
+            this.list_rect.height(CardConst.standard_height - 3*CardConst.standard_border);
             mm_in_px = this.list_rect.height() / this.selected_type.height;
             this.list_rect.width(this.selected_type.width * mm_in_px);
         }
@@ -392,13 +268,14 @@ export class AppComponent {
         this.update_list();
     };
 
+
     timeoutId = setTimeout(() =>{
 
         //создаем объект Kinetic.Stage в который будут сохранятся слои создаваемого изображения
         this.card_list = new Kinetic.Stage({
             container: 'card_list',
-            width: LIST_WIDTH,
-            height: LIST_HEIGHT
+            width: CardConst.standard_width,
+            height: CardConst.standard_height
         });
 
         this.background_layer.add(this.border_rect);
@@ -411,30 +288,7 @@ export class AppComponent {
         // this.card_elem.reload();
         this.select_type();
 
-
-
-
-        // var imageObj = angular.element(new Image());
-        // //когда изображение загрузится, добавим его в список к остальным
-        // imageObj.bind('load', function () {
-        //     Images[name] = imageObj[0];
-        //
-        // });
-        // imageObj[0].src = url;
-
-        // //изображение доски созданное ранее
-        // var squares = new Kinetic.Image({
-        //     image: Images['board'],
-        //     width: boardValue,
-        //     height: boardValue,
-        //     x: 0,
-        //     y: 0,
-        //     draggable: false
-        // });
-        // layer.add(squares);
     }, 100);
-
-
 
 }
 

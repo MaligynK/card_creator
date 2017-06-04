@@ -6,6 +6,8 @@ export class CardConst {
     // константы
     public static get standard_width():number { return 500; }
     public static get standard_height():number { return 500; }
+    public static get standard_view_width():number { return 500; }
+    public static get standard_view_height():number { return 500; }
     public static get standard_border():number { return 2; }
 }
 
@@ -34,19 +36,24 @@ export class Card {
         this.kinetic.height(height);
         for(let i=0; i<this.elements.length; i++){
             if(!this.elements[i].kinetic){continue;}
+            if(this.elements[i].type == 3){
+                // изображение
+                this.elements[i].kinetic.width(width*this.elements[i].w_size/100);
+                this.elements[i].kinetic.height(height*this.elements[i].h_size/100);
+                this.elements[i].kinetic.x(width*this.elements[i].x/100);
+                this.elements[i].kinetic.y(height*this.elements[i].y/100);
+                continue;
+            }
             if(this.elements[i].type == 1){
                 // рамка карты
                 this.elements[i].kinetic.width(width*this.elements[i].w_size/100);
                 this.elements[i].kinetic.height(height*this.elements[i].h_size/100);
                 this.elements[i].kinetic.x(this.elements[i].x*width/100);
                 this.elements[i].kinetic.y(this.elements[i].y*height/100);
-            }else{
-                // this.elements[i].kinetic.width(width*30/100);
-                // this.elements[i].kinetic.height(height*30/100);
-                this.elements[i].kinetic.x(0);
-                this.elements[i].kinetic.y(0);
-
+                continue;
             }
+            this.elements[i].kinetic.x(0);
+            this.elements[i].kinetic.y(0);
         }
         this.reload();
     };
@@ -98,6 +105,11 @@ export class Card {
             },
             {
                 type: 3,
+                w_size: 35,
+                h_size: 40,
+                x: 0,
+                y: 0,
+                desc: 'Портрет',
                 url: 'static/images/character_front_1.jpg',
             }
         ];
@@ -107,11 +119,11 @@ export class Card {
                 var image_obj = new Image();
                 image_obj.src = this.elements[i].url;
                 this.elements[i].kinetic = new Kinetic.Image({
-                    x: 0,
-                    y: 0,
+                    x: this.elements[i].x,
+                    y: this.elements[i].y,
                     image: image_obj,
-                    width: 30,
-                    height: 50
+                    width: this.elements[i].w_size,
+                    height: this.elements[i].h_size
                 });
             }
         }

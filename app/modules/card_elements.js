@@ -12,6 +12,16 @@ var CardConst = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(CardConst, "standard_view_width", {
+        get: function () { return 500; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CardConst, "standard_view_height", {
+        get: function () { return 500; },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(CardConst, "standard_border", {
         get: function () { return 2; },
         enumerable: true,
@@ -56,6 +66,11 @@ var Card = (function () {
             },
             {
                 type: 3,
+                w_size: 35,
+                h_size: 40,
+                x: 0,
+                y: 0,
+                desc: 'Портрет',
                 url: 'static/images/character_front_1.jpg',
             }
         ];
@@ -64,11 +79,11 @@ var Card = (function () {
                 var image_obj = new Image();
                 image_obj.src = this.elements[i].url;
                 this.elements[i].kinetic = new Kinetic.Image({
-                    x: 0,
-                    y: 0,
+                    x: this.elements[i].x,
+                    y: this.elements[i].y,
                     image: image_obj,
-                    width: 30,
-                    height: 50
+                    width: this.elements[i].w_size,
+                    height: this.elements[i].h_size
                 });
             }
         }
@@ -87,16 +102,22 @@ var Card = (function () {
             if (!this.elements[i].kinetic) {
                 continue;
             }
+            if (this.elements[i].type == 3) {
+                this.elements[i].kinetic.width(width * this.elements[i].w_size / 100);
+                this.elements[i].kinetic.height(height * this.elements[i].h_size / 100);
+                this.elements[i].kinetic.x(width * this.elements[i].x / 100);
+                this.elements[i].kinetic.y(height * this.elements[i].y / 100);
+                continue;
+            }
             if (this.elements[i].type == 1) {
                 this.elements[i].kinetic.width(width * this.elements[i].w_size / 100);
                 this.elements[i].kinetic.height(height * this.elements[i].h_size / 100);
                 this.elements[i].kinetic.x(this.elements[i].x * width / 100);
                 this.elements[i].kinetic.y(this.elements[i].y * height / 100);
+                continue;
             }
-            else {
-                this.elements[i].kinetic.x(0);
-                this.elements[i].kinetic.y(0);
-            }
+            this.elements[i].kinetic.x(0);
+            this.elements[i].kinetic.y(0);
         }
         this.reload();
     };

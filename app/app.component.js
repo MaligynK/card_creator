@@ -12,6 +12,7 @@ var AppComponent = (function () {
         var _this = this;
         this.background_layer = new Kinetic.Layer();
         this.main_layer = new Kinetic.Layer();
+        this.view_layer = new Kinetic.Layer();
         this.cards_layer = new Kinetic.Layer();
         this.border_rect = new Kinetic.Rect({
             stroke: '#000',
@@ -215,6 +216,11 @@ var AppComponent = (function () {
                 width: card_elements_1.CardConst.standard_width,
                 height: card_elements_1.CardConst.standard_height
             });
+            _this.card_view = new Kinetic.Stage({
+                container: 'card_view',
+                width: card_elements_1.CardConst.standard_view_width + 5,
+                height: card_elements_1.CardConst.standard_view_height + 5
+            });
             _this.background_layer.add(_this.border_rect);
             _this.card_list.add(_this.background_layer);
             _this.card_list.add(_this.main_layer);
@@ -222,6 +228,21 @@ var AppComponent = (function () {
             _this.main_layer.add(_this.list_rect);
             _this.cards_layer.add(_this.card_elem.kinetic);
             _this.select_type();
+            var current_card = _this.card_elem.clone();
+            var new_width = current_card.kinetic.width();
+            var new_heihgt = current_card.kinetic.height();
+            if (new_heihgt > new_width) {
+                new_width = new_width * card_elements_1.CardConst.standard_height / new_heihgt;
+                new_heihgt = card_elements_1.CardConst.standard_height;
+            }
+            else {
+                new_heihgt = new_heihgt * card_elements_1.CardConst.standard_width / new_width;
+                new_width = card_elements_1.CardConst.standard_width;
+            }
+            current_card.set_size(new_width, new_heihgt);
+            current_card.reload;
+            _this.view_layer.add(current_card.kinetic);
+            _this.card_view.add(_this.view_layer);
         }, 100);
     }
     return AppComponent;
@@ -229,7 +250,7 @@ var AppComponent = (function () {
 AppComponent = __decorate([
     core_1.Component({
         selector: 'card-app',
-        styles: ["\n        .container{padding-top: 40px;}\n        .menu-elem{padding-bottom: 20px;}\n        select,input{height: 30px;}\n    "],
+        styles: ["\n        #card_view {\n            border: solid 2px #343434;\n        }\n\n        .container {\n            padding-top: 40px;\n        }\n\n        .menu-elem {\n            padding-bottom: 20px;\n        }\n\n        select, input {\n            height: 30px;\n        }\n    "],
         templateUrl: 'templates/main.html'
     })
 ], AppComponent);

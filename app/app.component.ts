@@ -1,14 +1,27 @@
 import { Component, Class } from '@angular/core';
 import { CardConst, Card } from "./modules/card_elements";
+import {log} from "util";
 
 
 
 @Component({
     selector: 'card-app',
     styles: [`
-        .container{padding-top: 40px;}
-        .menu-elem{padding-bottom: 20px;}
-        select,input{height: 30px;}
+        #card_view {
+            border: solid 2px #343434;
+        }
+
+        .container {
+            padding-top: 40px;
+        }
+
+        .menu-elem {
+            padding-bottom: 20px;
+        }
+
+        select, input {
+            height: 30px;
+        }
     `],
     templateUrl: 'templates/main.html'
     // template: `<label>Введите имя:</label>
@@ -18,11 +31,16 @@ import { CardConst, Card } from "./modules/card_elements";
 
 export class AppComponent {
 
+    // отображение всего листа
     card_list: Kinetic.Stage;
+    // отображение выбранной карты для редактирования
+    card_view: Kinetic.Stage;
     //слой фона
     background_layer: Kinetic.Layer = new Kinetic.Layer();
     // основной слой
     main_layer: Kinetic.Layer = new Kinetic.Layer();
+    // слой с картами
+    view_layer: Kinetic.Layer = new Kinetic.Layer();
     // слой с картами
     cards_layer: Kinetic.Layer = new Kinetic.Layer();
     // границы холста
@@ -271,11 +289,18 @@ export class AppComponent {
 
     timeoutId = setTimeout(() =>{
 
-        //создаем объект Kinetic.Stage в который будут сохранятся слои создаваемого изображения
+        //создаем объект Kinetic.Stage, в котором будут сохранятся слои создаваемого изображения листа
         this.card_list = new Kinetic.Stage({
             container: 'card_list',
             width: CardConst.standard_width,
             height: CardConst.standard_height
+        });
+
+        //создаем объект Kinetic.Stage, в котором будут сохранятся слои создаваемого изображения для управления картой
+        this.card_view = new Kinetic.Stage({
+            container: 'card_view',
+            width: CardConst.standard_view_width + 5,
+            height: CardConst.standard_view_height + 5
         });
 
         this.background_layer.add(this.border_rect);
@@ -284,9 +309,21 @@ export class AppComponent {
         this.card_list.add(this.cards_layer);
         this.main_layer.add(this.list_rect);
         this.cards_layer.add(this.card_elem.kinetic);
-        // this.card_elem.set_size(30,30);
-        // this.card_elem.reload();
         this.select_type();
+        let current_card = this.card_elem.clone();
+        let new_width:number = current_card.kinetic.width();
+        let new_heihgt: number = current_card.kinetic.height();
+        if(new_heihgt > new_width){
+            new_width = new_width*CardConst.standard_height/new_heihgt;
+            new_heihgt = CardConst.standard_height;
+        }else{
+            new_heihgt = new_heihgt*CardConst.standard_width/new_width;
+            new_width = CardConst.standard_width;
+        }
+        current_card.set_size(new_width, new_heihgt);
+        current_card.reload;
+        this.view_layer.add(current_card.kinetic);
+        this.card_view.add(this.view_layer);
 
     }, 100);
 
